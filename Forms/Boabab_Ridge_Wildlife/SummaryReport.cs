@@ -16,5 +16,15 @@ namespace Boabab_Ridge_Wildlife
         {
             InitializeComponent();
         }
+
+        private void frmSummaryReport_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void btnSummaryReport_Click(object sender, EventArgs e)
+        { 
+            Form1 main = new Form1();
+            main.Show();
+        }
     }
 }
