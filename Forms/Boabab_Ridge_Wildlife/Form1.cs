@@ -9,8 +9,7 @@ namespace Boabab_Ridge_Wildlife
     public partial class Form1 : Form
     {
         DataHandler handler = new DataHandler();
-        private readonly string filePath = "C:\\Users\\tlotl\\OneDrive\\Documents\\School Notes\\Second year\\PRG281\\Project\\New3\\baobab-ridge-wildlife\\Forms\\Boabab_Ridge_Wildlife\\animals.txt";
-        //Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
+        private readonly string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
         public Form1()
         {
             InitializeComponent();
@@ -72,7 +71,7 @@ namespace Boabab_Ridge_Wildlife
 
         }
         private void Form1_Load(object sender, EventArgs e)
-        {
+        { 
             ConfigureGrid();
             RefreshGrid();
         }
