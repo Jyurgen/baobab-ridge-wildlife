@@ -172,6 +172,7 @@
             btnSummaryReport.TabIndex = 15;
             btnSummaryReport.Text = "Summary Report";
             btnSummaryReport.UseVisualStyleBackColor = true;
+            btnSummaryReport.Click += btnSummaryReport_Click;
             // 
             // dgvData
             // 

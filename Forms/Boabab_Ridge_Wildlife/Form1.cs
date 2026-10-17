@@ -10,7 +10,7 @@ namespace Boabab_Ridge_Wildlife
     {
         DataHandler handler = new DataHandler();
         private readonly string filePath = "C:\\Users\\tlotl\\OneDrive\\Documents\\School Notes\\Second year\\PRG281\\Project\\New3\\baobab-ridge-wildlife\\Forms\\Boabab_Ridge_Wildlife\\animals.txt";
-            //Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
+        //Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
         public Form1()
         {
             InitializeComponent();
@@ -50,7 +50,7 @@ namespace Boabab_Ridge_Wildlife
                 DataPropertyName = "recoveryScore"
             });
         }
-        
+
         private void RefreshGrid()
         {
             handler.EnsureFileExists(filePath);
@@ -80,6 +80,13 @@ namespace Boabab_Ridge_Wildlife
         private void btnView_Click(object sender, EventArgs e)
         {
             RefreshGrid();
+        }
+
+        private void btnSummaryReport_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            frmSummaryReport summaryReportForm = new frmSummaryReport();
+            summaryReportForm.Show();
         }
     }
 }
