@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
-            rtbReport = new RichTextBox();
             label1 = new Label();
+            rtbReport = new RichTextBox();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -44,16 +44,6 @@
             panel1.Size = new Size(792, 475);
             panel1.TabIndex = 0;
             // 
-            // rtbReport
-            // 
-            rtbReport.Font = new Font("Times New Roman", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            rtbReport.Location = new Point(68, 99);
-            rtbReport.Name = "rtbReport";
-            rtbReport.ReadOnly = true;
-            rtbReport.Size = new Size(676, 329);
-            rtbReport.TabIndex = 0;
-            rtbReport.Text = "";
-            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -64,6 +54,16 @@
             label1.TabIndex = 1;
             label1.Text = "Summary Report";
             // 
+            // rtbReport
+            // 
+            rtbReport.Font = new Font("Times New Roman", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbReport.Location = new Point(68, 99);
+            rtbReport.Name = "rtbReport";
+            rtbReport.ReadOnly = true;
+            rtbReport.Size = new Size(676, 329);
+            rtbReport.TabIndex = 0;
+            rtbReport.Text = "";
+            // 
             // frmSummaryReport
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -73,6 +73,7 @@
             Font = new Font("Times New Roman", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Name = "frmSummaryReport";
             Text = "Summary Report";
+            Load += frmSummaryReport_Load;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);

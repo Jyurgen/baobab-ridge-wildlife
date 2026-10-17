@@ -10,6 +10,8 @@ namespace Boabab_Ridge_Wildlife
     {
         DataHandler handler = new DataHandler();
         private readonly string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
+        private BindingList<Animal> animals = new BindingList<Animal>();
+        private bool dataLoadedOk = false;
         public Form1()
         {
             InitializeComponent();
@@ -26,7 +28,7 @@ namespace Boabab_Ridge_Wildlife
             dgvData.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "Animal ID",
-                DataPropertyName = "animalID"
+                DataPropertyName = "AnimalID"
             });
             dgvData.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -46,27 +48,52 @@ namespace Boabab_Ridge_Wildlife
             dgvData.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "Recovery Score",
-                DataPropertyName = "recoveryScore"
+                DataPropertyName = "RecoveryScore"
+            });
+            dgvData.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Status",
+                DataPropertyName = "Status"
+            });
+            dgvData.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Housing Unit",
+                DataPropertyName = "HousingUnit"
             });
         }
 
         private void RefreshGrid()
         {
-            handler.EnsureFileExists(filePath);
             try
             {
                 handler.EnsureFileExists(filePath);
                 dgvData.DataSource = handler.LoadAnimals(filePath, out int skipped);
+                dataLoadedOk = true;
+                if (skipped > 0)
+                {
+                    MessageBox.Show($"{skipped} records were skipped due to validation errors.");
+                }
             }
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("The program doesn't have permission to create or read the file.",
                     "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dgvData.DataSource = null;
             }
             catch (IOException)
             {
                 MessageBox.Show("The file could not be accessed. It may be open in another program.",
                     "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dgvData.DataSource = null;
+            }
+            catch (Exception ex)
+            {
+                if (!dataLoadedOk)
+                {
+                    MessageBox.Show("The data file is missing or corrupted. Please ensure 'animals.txt' exists in the application directory and is formatted correctly.",
+                        "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
 
         }
