@@ -2,12 +2,15 @@ using System.ComponentModel;
 using Boabab_Ridge_Wildlife.Models;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.IO;
+using Boabab_Ridge_Wildlife.Data_Layer;
 
 namespace Boabab_Ridge_Wildlife
 {
     public partial class Form1 : Form
     {
-        private readonly string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
+        DataHandler handler = new DataHandler();
+        private readonly string filePath = "C:\\Users\\tlotl\\OneDrive\\Documents\\School Notes\\Second year\\PRG281\\Project\\New3\\baobab-ridge-wildlife\\Forms\\Boabab_Ridge_Wildlife\\animals.txt";
+            //Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "animals.txt");
         public Form1()
         {
             InitializeComponent();
@@ -47,53 +50,14 @@ namespace Boabab_Ridge_Wildlife
                 DataPropertyName = "recoveryScore"
             });
         }
-        public BindingList<Animal> LoadAnimals(string path, out int skipped)
-        {
-            var animals = new BindingList<Animal>();
-            skipped = 0;
-
-            try
-            {
-                var lines = File.ReadAllLines(path);
-                foreach (var line in lines)
-                {
-                    var parts = line.Split(',');
-                    if (parts.Length == 5 &&
-                        int.TryParse(parts[3], out int age) &&
-                        int.TryParse(parts[4], out int recoveryScore))
-                    {
-                        var animal = new Animal(parts[0], parts[1], parts[2], age, recoveryScore);
-                        animals.Add(animal);
-                    }
-                    else
-                    {
-                        skipped++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions (e.g., file not found, access denied)
-                Console.WriteLine($"Error loading animals: {ex.Message}");
-            }
-
-            return animals;
-        }
-        private void EnsureFileExists(string path)
-        {
-            if (!File.Exists(path))
-            {
-                // Creates a new empty file; Dispose closes it straight away
-                File.Create(path).Dispose();
-            }
-        }
+        
         private void RefreshGrid()
         {
-            EnsureFileExists(filePath);
+            handler.EnsureFileExists(filePath);
             try
             {
-                EnsureFileExists(filePath);
-                dgvData.DataSource = LoadAnimals(filePath, out int skipped);
+                handler.EnsureFileExists(filePath);
+                dgvData.DataSource = handler.LoadAnimals(filePath, out int skipped);
             }
             catch (UnauthorizedAccessException)
             {

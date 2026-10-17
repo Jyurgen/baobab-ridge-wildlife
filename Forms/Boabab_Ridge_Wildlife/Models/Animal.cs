@@ -73,6 +73,5 @@ namespace Boabab_Ridge_Wildlife.Models
             }
         }
 
-        
     }
 }
