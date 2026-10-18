@@ -52,5 +52,19 @@ namespace Boabab_Ridge_Wildlife.Data_Layer
                 File.Create(path).Dispose();
             }
         }
+
+
+        public void SaveAnimals(string path, IEnumerable<Animal> animals) //public method to save animals to a file
+        {
+            // Create a temporary file to write the updated data
+            var lines = animals.Select(a => 
+            $"{a.AnimalID}|{a.Name}|{a.Species}|{a.Age}|{a.RecoveryScore}|{a.Status}|{a.HousingUnit}");
+
+            string tempPath = path + ".tmp";
+
+            File.WriteAllLines(tempPath, lines); // Write to a temporary file first
+            File.Replace(tempPath, path, path + ".bak"); // Replace the original file with the temporary file and create a backup
+        }
+
     }
 }
