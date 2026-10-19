@@ -70,76 +70,90 @@ namespace Boabab_Ridge_Wildlife
             });
         }
 
+        /// <summary>
+        /// Saves the current animal list to animals.txt and reports friendly errors for common file problems.
+        /// </summary>
+        private bool TrySaveAnimals()
+        {
+            try
+            {
+                handler.SaveAnimals(filePath, animals);
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("The program does not have permission to write animals.txt. Set the file to read-write and try again.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("The folder that should contain animals.txt could not be found.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("animals.txt could not be written. It may be open in another program. Close it and try again.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An unexpected error occurred while saving animals.txt: " + ex.Message,
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Reloads all valid records from animals.txt into the grid and resets the form to add mode.
+        /// </summary>
         private void RefreshGrid()
         {
-            //try
-            //{
-            //    handler.EnsureFileExists(filePath);
-            //    dgvData.DataSource = handler.LoadAnimals(filePath, out int skipped);
-            //    dataLoadedOk = true;
-            //    if (skipped > 0)
-            //    {
-            //        MessageBox.Show($"{skipped} records were skipped due to validation errors.");
-            //    }
-            //}
-            //catch (UnauthorizedAccessException)
-            //{
-            //    MessageBox.Show("The program doesn't have permission to create or read the file.",
-            //        "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    dgvData.DataSource = null;
-            //}
-            //catch (IOException)
-            //{
-            //    MessageBox.Show("The file could not be accessed. It may be open in another program.",
-            //        "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    dgvData.DataSource = null;
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (!dataLoadedOk)
-            //    {
-            //        MessageBox.Show("The data file is missing or corrupted. Please ensure 'animals.txt' exists in the application directory and is formatted correctly.",
-            //            "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //        return;
-            //    }
-            //}
-
-            dataLoadedOk = false; //reset the data loaded flag to false before attempting to load data again
-            selectedAnimalId = null; //reset the selected animal ID to null since no animal is selected after refresh
-
-            txbAnimalID.ReadOnly = false; //make the AnimalID text box editable again for new entries
-
-            //clear the text boxes to remove any previously displayed animal data
+            dataLoadedOk = false;
+            selectedAnimalId = null;
+            txbAnimalID.ReadOnly = false;
             txbAnimalID.Clear();
             txbName.Clear();
             txbSpecies.Clear();
             txbAge.Clear();
             txbRecScore.Clear();
-
             dgvData.DataSource = null;
 
-            try //attempt to load the animal data from the file
+            try
             {
-                handler.EnsureFileExists(filePath); //ensure the data file exists, creating it if necessary
+                handler.EnsureFileExists(filePath);
+                animals = handler.LoadAnimals(filePath, out int skipped);
 
-                animals = handler.LoadAnimals(filePath, out int skipped); //load the animals from the file and get the count of skipped records due to validation errors
-
-                //bind the loaded animals to the DataGridView for display
                 dgvData.DataSource = animals;
                 dgvData.ClearSelection();
 
-                if (skipped > 0) //if there were any skipped records, inform the user and disable update and delete operations
+                if (skipped > 0)
                 {
                     MessageBox.Show(
                         $"{skipped} invalid records were skipped. Update and Delete are disabled until the file is corrected.");
                     return;
                 }
 
-                dataLoadedOk = true; //set the data loaded flag to true since the data was loaded successfully
+                dataLoadedOk = true;
             }
-            catch (Exception ex) //catch any exceptions that occur during the loading process and inform the user
+            catch (UnauthorizedAccessException)
             {
-                MessageBox.Show("Could not load animals: " + ex.Message);
+                MessageBox.Show("The program does not have permission to read or create animals.txt.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("The folder that should contain animals.txt could not be found.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("animals.txt could not be accessed. It may be open in another program. Close it and try again.",
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An unexpected error occurred while loading animals.txt: " + ex.Message,
+                    "File error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -157,6 +171,8 @@ namespace Boabab_Ridge_Wildlife
         {
             this.Hide();
             frmSummaryReport summaryReportForm = new frmSummaryReport();
+            // When the summary form is closed, show Form1 again.
+            summaryReportForm.FormClosed += (s, args) => this.Show();
             summaryReportForm.Show();
         }
 
@@ -235,19 +251,14 @@ namespace Boabab_Ridge_Wildlife
 
             animal.CalculateClassification(); // Recalculate the animal's classification based on the updated data
 
-            try //attempt to save the updated list of animals back to the file
+            if (!TrySaveAnimals())
             {
-                handler.SaveAnimals(filePath, animals);
-
                 RefreshGrid();
+                return;
+            }
 
-                MessageBox.Show("Animal updated successfully.");
-            }
-            catch (Exception ex) //catch any exceptions that occur during the save operation and inform the user
-            {
-                MessageBox.Show("Update failed: " + ex.Message);
-                RefreshGrid();
-            }
+            RefreshGrid();
+            MessageBox.Show("Animal updated successfully.");
         }
         private void btnDelete_Click(object? sender, EventArgs e) //method to handle the Delete button click event
         {
@@ -273,7 +284,7 @@ namespace Boabab_Ridge_Wildlife
             }
 
             DialogResult answer = MessageBox.Show(
-                $"Are you sure you want to delete {animal.Name}?",
+                $"Delete {animal.AnimalID} ({animal.Name})? This cannot be undone.",
                 "Confirm Delete",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning
@@ -286,19 +297,15 @@ namespace Boabab_Ridge_Wildlife
 
             animals.Remove(animal); //remove the selected animal from the list of animals
 
-            try //attempt to save the updated list of animals back to the file
+            if (!TrySaveAnimals())
             {
-                handler.SaveAnimals(filePath, animals);
-
+                animals.Add(animal);   // put it back so the screen matches the file
                 RefreshGrid();
+                return;
+            }
 
-                MessageBox.Show("Animal deleted successfully.");
-            }
-            catch (Exception ex) //catch any exceptions that occur during the save operation and inform the user
-            {
-                MessageBox.Show("Delete failed: " + ex.Message);
-                RefreshGrid();
-            }
+            RefreshGrid();
+            MessageBox.Show("Animal deleted successfully.");
         }
 
 
